@@ -196,6 +196,29 @@ public class LocalClientServerLoopback {
     public Void onCallback(Deferred<Boolean> deferred, Boolean status) throws Exception {
       logger.log(Level.INFO, "Socket close completed");
       synchronized (LocalClientServerLoopback.this) {
+        serverHandle.close().addDeferrable(new ServerCloseCompletionHandler(), true);
+        return null;
+      }
+    }
+
+    public Void onErrback(Deferred<Boolean> deferred, Exception error) throws Exception {
+      synchronized (LocalClientServerLoopback.this) {
+        if (deferredResult != null) {
+          deferredResult.errback(error);
+          deferredResult = null;
+        }
+        return null;
+      }
+    }
+  }
+
+  /*
+   * Callback on having closed the server port.
+   */
+  public class ServerCloseCompletionHandler implements Deferrable<Boolean, Void> {
+    public Void onCallback(Deferred<Boolean> deferred, Boolean status) throws Exception {
+      logger.log(Level.INFO, "Server close completed");
+      synchronized (LocalClientServerLoopback.this) {
         reactor.runTimerOneShot(new ShutdownCompletionHandler(), TEST_SHUTDOWN_TIME, null);
         return null;
       }
@@ -239,15 +262,19 @@ public class LocalClientServerLoopback {
   private class ServerSocketAcceptor implements Signalable<SocketHandle> {
     public void onSignal(Signal<SocketHandle> signalId, SocketHandle socketHandle) {
       synchronized (LocalClientServerLoopback.this) {
-        if (dataSink == null) {
-          dataSink = new SocketTestDataSink(reactor, reactor.getLogger("DATA-SINK"), socketService, socketHandle,
-              DATA_SEED, null, MIN_BUFFER_SIZE, MAX_BUFFER_SIZE);
-          reactor.getLogger("DATA-SINK").setLogLevel(logLevel);
-          dataSink.consumeData();
-          logger.log(Level.INFO, "Data sink activated");
-        } else if (deferredResult != null) {
-          deferredResult.errback(new Exception("Only a single server connection is permitted for the loopback test"));
-          deferredResult = null;
+        if (socketHandle == null) {
+          logger.log(Level.INFO, "Received server shutdown notification");
+        } else {
+          if (dataSink == null) {
+            dataSink = new SocketTestDataSink(reactor, reactor.getLogger("DATA-SINK"), socketService, socketHandle,
+                DATA_SEED, null, MIN_BUFFER_SIZE, MAX_BUFFER_SIZE);
+            reactor.getLogger("DATA-SINK").setLogLevel(logLevel);
+            dataSink.consumeData();
+            logger.log(Level.INFO, "Data sink activated");
+          } else if (deferredResult != null) {
+            deferredResult.errback(new Exception("Only a single server connection is permitted for the loopback test"));
+            deferredResult = null;
+          }
         }
       }
     }
