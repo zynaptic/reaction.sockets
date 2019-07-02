@@ -174,8 +174,10 @@ class SSLServerAdaptor implements ServerHandle, Deferrable<SocketHandle, Void>, 
    * an SSL/TLS adaptor for the socket and then initiates the handshake.
    */
   public void onSignal(Signal<SocketHandle> signalId, SocketHandle transportSocket) {
-    SSLSocketOpener adaptorOpener = new SSLSocketOpener(reactor, logger, socketService, sslContext);
-    adaptorOpener.openAdaptor(transportSocket, false).addDeferrable(this, true);
+    if (transportSocket != null) {
+      SSLSocketOpener adaptorOpener = new SSLSocketOpener(reactor, logger, socketService, sslContext);
+      adaptorOpener.openAdaptor(transportSocket, false).addDeferrable(this, true);
+    }
   }
 
   /*
