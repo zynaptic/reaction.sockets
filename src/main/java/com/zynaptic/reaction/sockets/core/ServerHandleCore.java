@@ -192,6 +192,7 @@ final class ServerHandleCore implements ServerHandle, CompletionHandler<Asynchro
         SocketHandleCore socketHandle = new SocketHandleCore(reactor, socketService);
         socketHandle.setup(socketChannel, socketChannel.getRemoteAddress().toString());
         acceptSignal.signal(socketHandle);
+        logger.log(Level.INFO, "Accepted connection from <" + socketHandle.getSocketId() + "> on <" + serverId + ">");
       }
 
       // Close new socket channel if the client cannot be resolved.

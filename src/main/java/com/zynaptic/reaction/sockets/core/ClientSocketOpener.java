@@ -93,7 +93,7 @@ final class ClientSocketOpener implements CompletionHandler<Void, Deferred<Socke
    * request.
    */
   public synchronized void completed(Void result, Deferred<SocketHandle> deferredOpen) {
-    logger.log(Level.INFO, "Opened client socket <" + socketHandle.getSocketId() + ">");
+    logger.log(Level.INFO, "Opened client socket to <" + socketHandle.getSocketId() + ">");
     deferredOpen.callback(socketHandle);
   }
 
