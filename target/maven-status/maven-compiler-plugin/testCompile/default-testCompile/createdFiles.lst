@@ -1,7 +1,0 @@
-com\zynaptic\reaction\sockets\test\SocketTestLoopback$1.class
-com\zynaptic\reaction\sockets\test\EchoServer$1.class
-com\zynaptic\reaction\sockets\test\SSLClientServerTest$1.class
-com\zynaptic\reaction\sockets\test\core\LocalClientServerLoopback$1.class
-com\zynaptic\reaction\sockets\test\QuickClientTest$1.class
-com\zynaptic\reaction\sockets\test\QuickServerTest$1.class
-com\zynaptic\reaction\sockets\test\ClientServerTest$1.class
